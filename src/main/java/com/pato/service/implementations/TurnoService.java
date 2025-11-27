@@ -45,6 +45,12 @@ public class TurnoService implements ITurnoService {
 
         turnoRepository.save(turno);
 
+        crearYenviarHtml(turno, servicio, barbero);
+
+        return turnoMapper.toResponse(turno);
+    }
+
+    private void crearYenviarHtml(Turno turno, Servicio servicio, Barbero barbero) {
         String html = emailService.cargarConfirmacion(
                 turno.getNombreCliente(),
                 turno.getFecha().toString(),
@@ -59,8 +65,6 @@ public class TurnoService implements ITurnoService {
                 "Confirmación de tu turno – Style Barber",
                 html
         );
-
-        return turnoMapper.toResponse(turno);
     }
 
     private void validarTurno(LocalDate fecha, LocalTime hora,
