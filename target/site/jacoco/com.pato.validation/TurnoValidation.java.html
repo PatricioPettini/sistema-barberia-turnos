@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TurnoValidation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.validation</a> &gt; <span class="el_source">TurnoValidation.java</span></div><h1>TurnoValidation.java</h1><pre class="source lang-java linenums">package com.pato.validation;
+
+import com.pato.model.Turno;
+import com.pato.model.enums.EstadoTurno;
+import com.pato.repository.ITurnoRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class TurnoValidation {
+
+    private final ITurnoRepository turnoRepository;
+
+    public void validarEstadoTurno(EstadoTurno estado){
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if(estado.equals(EstadoTurno.CANCELADO)){</span>
+<span class="fc" id="L23">            throw new IllegalArgumentException(&quot;El turno no puede editarse porque fue cancelado&quot;);</span>
+        }
+
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if(estado.equals(EstadoTurno.FINALIZADO)){</span>
+<span class="fc" id="L27">            throw new IllegalArgumentException(&quot;El turno no puede editarse porque ya fue finalizado&quot;);</span>
+        }
+
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if(estado.equals(EstadoTurno.NO_ASISTIO)){</span>
+<span class="fc" id="L31">            throw new IllegalArgumentException(&quot;El turno no puede editarse porque el cliente no asistió. Debe crear un nuevo turno!&quot;);</span>
+        }
+<span class="fc" id="L33">    }</span>
+
+    public void validarHorarioTurno(LocalDate fecha, LocalTime hora) {
+
+<span class="fc" id="L37">        LocalDateTime fechaHora = LocalDateTime.of(fecha, hora);</span>
+
+        // 1. No permitir fechas pasadas
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (fechaHora.isBefore(LocalDateTime.now())) {</span>
+<span class="fc" id="L41">            throw new IllegalArgumentException(&quot;La fecha y hora del turno debe ser futura.&quot;);</span>
+        }
+
+        // 2. Validar día permitido (martes a sábado)
+<span class="fc" id="L45">        DayOfWeek dia = fecha.getDayOfWeek();</span>
+<span class="fc bfc" id="L46" title="All 4 branches covered.">        if (dia == DayOfWeek.SUNDAY || dia == DayOfWeek.MONDAY) {</span>
+<span class="fc" id="L47">            throw new IllegalArgumentException(&quot;Solo se pueden sacar turnos de martes a sábado.&quot;);</span>
+        }
+
+        // 3. Validar rango horario
+<span class="fc" id="L51">        LocalTime apertura = LocalTime.of(10, 0);</span>
+<span class="fc" id="L52">        LocalTime cierre = LocalTime.of(20, 0);</span>
+
+<span class="pc bpc" id="L54" title="2 of 4 branches missed.">        if (hora.isBefore(apertura) || hora.isAfter(cierre)) {</span>
+<span class="nc" id="L55">            throw new IllegalArgumentException(&quot;El horario debe estar entre las 10:00 y las 20:00.&quot;);</span>
+        }
+<span class="fc" id="L57">    }</span>
+
+    public void validarHorarioYBarberoDisponible(
+            LocalDate fecha,
+            LocalTime horaDesde,
+            int duracion,
+            Long idBarbero
+    ) {
+
+<span class="fc" id="L66">        LocalTime horaHasta = horaDesde.plusMinutes(duracion);</span>
+
+<span class="fc" id="L68">        List&lt;Turno&gt; solapados = turnoRepository.findSolapados(</span>
+                idBarbero,
+                fecha,
+                horaDesde,
+                horaHasta
+        );
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (!solapados.isEmpty()) {</span>
+<span class="fc" id="L76">            throw new IllegalArgumentException(</span>
+                    &quot;El horario seleccionado no está disponible para este barbero.&quot;
+            );
+        }
+<span class="fc" id="L80">    }</span>
+
+    public void validarFechaFutura(LocalDate fecha, LocalTime horaInicio){
+
+<span class="fc" id="L84">        LocalDateTime fechaHora=LocalDateTime.of(fecha,horaInicio);</span>
+<span class="fc" id="L85">        LocalDateTime present=LocalDateTime.now();</span>
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if(fechaHora.isBefore(present)){</span>
+<span class="fc" id="L88">            throw new IllegalArgumentException(&quot;La fecha no puede ser anterior a la actual&quot;);</span>
+        }
+<span class="fc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

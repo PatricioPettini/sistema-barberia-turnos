@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.service.implementations</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.pato.service.implementations;
+
+import com.pato.model.UserSec;
+import com.pato.repository.IUserRepository;
+import com.pato.service.interfaces.IUserService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class UserService implements IUserService {
+
+    private final IUserRepository userRepository;
+
+    @Override
+    public List findAll() {
+<span class="fc" id="L22">        return userRepository.findAll();</span>
+    }
+
+    @Override
+    public Optional findById(Long id) {
+<span class="fc" id="L27">        return userRepository.findById(id);</span>
+    }
+
+    @Override
+    public UserSec save(UserSec userSec) {
+<span class="fc" id="L32">        return userRepository.save(userSec);</span>
+    }
+
+    @Override
+    public void deleteById(Long id) {
+<span class="fc" id="L37">        userRepository.deleteById(id);</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public void update(UserSec userSec) {
+<span class="fc" id="L42">        save(userSec);</span>
+<span class="fc" id="L43">    }</span>
+
+    @Override
+    public String encriptPassword(String password) {
+<span class="fc" id="L47">        return new BCryptPasswordEncoder().encode(password);</span>
+    }
+
+    @Override
+    public UserSec findByUsername(String username) {
+<span class="fc" id="L52">        return userRepository.findByUsername(username)</span>
+<span class="fc" id="L53">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Usuario no encontrado: &quot; + username));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BarberoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.service.implementations</a> &gt; <span class="el_source">BarberoService.java</span></div><h1>BarberoService.java</h1><pre class="source lang-java linenums">package com.pato.service.implementations;
+
+import com.pato.dto.request.BarberoRequest;
+import com.pato.dto.response.BarberoResponse;
+import com.pato.helpers.mappers.BarberoMapper;
+import com.pato.model.Barbero;
+import com.pato.repository.IBarberoRepository;
+import com.pato.service.interfaces.IBarberoService;
+import com.pato.validation.BarberoValidation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class BarberoService implements IBarberoService {
+
+    private final IBarberoRepository barberoRepository;
+    private final BarberoMapper barberoMapper;
+    private final BarberoValidation barberoValidation;
+
+    @Override
+    public void cambiarEstado(Long id) {
+<span class="fc" id="L25">        Barbero barbero= getBarberoEntity(id);</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        barbero.setActivo(!barbero.isActivo());</span>
+<span class="fc" id="L27">        barberoRepository.save(barbero);</span>
+<span class="fc" id="L28">    }</span>
+
+    @Override
+    public BarberoResponse crear(BarberoRequest objeto) {
+
+<span class="fc" id="L33">        barberoValidation.validarTelefonoCrear(objeto.getTelefono());</span>
+
+<span class="fc" id="L35">        Barbero barbero = barberoMapper.fromRequestToEntity(objeto);</span>
+<span class="fc" id="L36">        Barbero guardado = barberoRepository.save(barbero);</span>
+
+<span class="fc" id="L38">        return barberoMapper.toResponseDto(guardado);</span>
+    }
+
+    @Override
+    public BarberoResponse buscarPorId(Long id) {
+<span class="fc" id="L43">        Barbero barbero = getBarberoEntity(id);</span>
+
+<span class="fc" id="L45">        return barberoMapper.toResponseDto(barbero);</span>
+    }
+
+    public Barbero getBarberoEntity(Long id) {
+<span class="fc" id="L49">        return barberoRepository.findById(id)</span>
+<span class="fc" id="L50">                .orElseThrow(()-&gt;new IllegalArgumentException(&quot;No existe barbero con ese id&quot;));</span>
+    }
+
+    @Override
+    public List&lt;BarberoResponse&gt; listar() {
+<span class="fc" id="L55">        return barberoRepository.findAll()</span>
+<span class="fc" id="L56">                .stream()</span>
+<span class="fc" id="L57">                .map(barberoMapper::toResponseDto)</span>
+<span class="fc" id="L58">                .toList();</span>
+    }
+
+    @Override
+    public BarberoResponse actualizar(Long id, BarberoRequest objeto) {
+
+<span class="fc" id="L64">        Barbero barbero = getBarberoEntity(id);</span>
+
+<span class="fc" id="L66">        barberoValidation.validarTelefonoActualizar(id, objeto.getTelefono());</span>
+
+<span class="fc" id="L68">        barbero.setNombre(objeto.getNombre());</span>
+<span class="fc" id="L69">        barbero.setApellido(objeto.getApellido());</span>
+<span class="fc" id="L70">        barbero.setTelefono(objeto.getTelefono());</span>
+
+<span class="fc" id="L72">        Barbero guardado = barberoRepository.save(barbero);</span>
+<span class="fc" id="L73">        return barberoMapper.toResponseDto(guardado);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

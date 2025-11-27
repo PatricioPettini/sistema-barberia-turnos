@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" style="margin:0; padding:0;">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Recordatorio de turno</title>
+</head>
+
+<body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f5f5f5;">
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5; padding:20px 0;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0"
+                   style="background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+                <tr>
+                    <td align="center"
+                        style="background:#000000; padding:20px; color:white; font-size:22px; font-weight:bold;">
+                        💈 Style Barber – Recordatorio de turno
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:25px; font-size:16px; color:#333;">
+                        <p style="margin:0 0 15px 0;">
+                            Hola <strong>${nombre}</strong>,
+                        </p>
+
+                        <p style="margin:0 0 15px 0;">
+                            Te recordamos que tenés un turno reservado en <strong>Style Barber</strong>
+                            dentro de las próximas horas.
+                        </p>
+
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="background:#fafafa; padding:15px; border-radius:8px; border:1px solid #e5e5e5;">
+                            <tr>
+                                <td style="font-size:16px;">
+                                    <strong>📅 Fecha:</strong> ${fecha} <br>
+                                    <strong>⏰ Hora:</strong> ${hora} hs <br>
+                                    <strong>💈 Servicio:</strong> ${servicio} <br>
+                                    <strong>👤 Barbero:</strong> ${barbero}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p style="margin:20px 0 0 0;">
+                            Si por algún motivo no podés asistir, te pedimos que canceles el turno para
+                            liberar el horario para otro cliente.
+                        </p>
+
+                        <p style="margin:15px 0 0 0;">
+                            ¡Te esperamos! 🙌
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding:20px;">
+                        <a href="${linkCancelar}"
+                           style="background:#c62828; color:white; text-decoration:none; padding:12px 25px;
+                                  border-radius:5px; font-size:16px; display:inline-block;">
+                            Cancelar mi turno
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center"
+                        style="background:#fafafa; padding:15px; font-size:12px; color:#555;">
+                        Si ya concurriste o este mensaje no corresponde, podés ignorarlo.<br/>
+                        © 2025 Style Barber. Todos los derechos reservados.
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

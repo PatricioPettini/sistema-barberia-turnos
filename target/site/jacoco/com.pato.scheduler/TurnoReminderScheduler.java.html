@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TurnoReminderScheduler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.scheduler</a> &gt; <span class="el_source">TurnoReminderScheduler.java</span></div><h1>TurnoReminderScheduler.java</h1><pre class="source lang-java linenums">package com.pato.scheduler;
+
+import com.pato.model.Turno;
+import com.pato.model.enums.EstadoTurno;
+import com.pato.repository.ITurnoRepository;
+import com.pato.service.implementations.EmailService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class TurnoReminderScheduler {
+
+    private final ITurnoRepository turnoRepository;
+    private final EmailService emailService;
+
+    @Scheduled(fixedRate = 30 * 60 * 1000)  // cada 30 min
+    public void enviarRecordatorios() {
+
+<span class="fc" id="L25">        LocalDate hoy = LocalDate.now();</span>
+<span class="fc" id="L26">        LocalTime desde = LocalTime.now().plusHours(2);</span>
+<span class="fc" id="L27">        LocalTime hasta = LocalTime.now().plusHours(3);</span>
+
+<span class="fc" id="L29">        List&lt;Turno&gt; turnos = turnoRepository</span>
+<span class="fc" id="L30">                .findByFechaAndHoraDesdeBetweenAndEstadoTurnoAndRecordatorioEnviadoFalse(</span>
+                        hoy,
+                        desde,
+                        hasta,
+                        EstadoTurno.PENDIENTE
+                );
+
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        for (Turno turno : turnos) {</span>
+
+<span class="nc" id="L39">            String fechaStr = turno.getFecha().toString();</span>
+<span class="nc" id="L40">            String horaStr  = turno.getHoraDesde().toString().substring(0, 5);</span>
+
+<span class="nc" id="L42">            String servicioNombre = turno.getServicio().getNombreServicio();</span>
+<span class="nc" id="L43">            String barberoNombre  = turno.getBarbero().getNombre() + &quot; &quot; +</span>
+<span class="nc" id="L44">                    turno.getBarbero().getApellido();</span>
+
+<span class="nc" id="L46">            String linkCancelar = &quot;http://localhost:8082/cancelar-turno.html?id=&quot; + turno.getIdTurno();</span>
+
+
+<span class="nc" id="L49">            String html = emailService.cargarRecordatorioTurno(</span>
+<span class="nc" id="L50">                    turno.getNombreCliente(),</span>
+                    fechaStr,
+                    horaStr,
+                    servicioNombre,
+                    barberoNombre,
+                    linkCancelar
+            );
+
+<span class="nc" id="L58">            emailService.enviarHtml(</span>
+<span class="nc" id="L59">                    turno.getEmailCliente(),</span>
+                    &quot;Recordatorio de tu turno – Style Barber&quot;,
+                    html
+            );
+
+
+<span class="nc" id="L65">            emailService.enviarHtml(</span>
+<span class="nc" id="L66">                    turno.getEmailCliente(),</span>
+                    &quot;Recordatorio de Turno&quot;,
+                    html
+            );
+
+<span class="nc" id="L71">            turno.setRecordatorioEnviado(true);</span>
+<span class="nc" id="L72">        }</span>
+
+<span class="fc" id="L74">        turnoRepository.saveAll(turnos);</span>
+
+<span class="fc" id="L76">        System.out.println(&quot;Recordatorios enviados: &quot; + turnos.size());</span>
+<span class="fc" id="L77">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

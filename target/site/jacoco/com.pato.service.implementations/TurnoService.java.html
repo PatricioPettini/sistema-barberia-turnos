@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TurnoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.service.implementations</a> &gt; <span class="el_source">TurnoService.java</span></div><h1>TurnoService.java</h1><pre class="source lang-java linenums">package com.pato.service.implementations;
+
+import com.pato.dto.request.TurnoRequest;
+import com.pato.dto.response.TurnoResponse;
+import com.pato.helpers.mappers.TurnoMapper;
+import com.pato.model.Barbero;
+import com.pato.model.Servicio;
+import com.pato.model.Turno;
+import com.pato.model.enums.EstadoTurno;
+import com.pato.repository.ITurnoRepository;
+import com.pato.service.interfaces.ITurnoService;
+import com.pato.validation.TurnoValidation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class TurnoService implements ITurnoService {
+
+    private final BarberoService barberoService;
+    private final ServicioService servicioService;
+    private final ITurnoRepository turnoRepository;
+    private final TurnoMapper turnoMapper;
+    private final TurnoValidation turnoValidation;
+    private final EmailService emailService;
+
+    @Override
+    public TurnoResponse crear(TurnoRequest objeto) {
+
+<span class="fc" id="L34">        Barbero barbero = getBarbero(objeto.getIdBarbero());</span>
+<span class="fc" id="L35">        Servicio servicio = getServicio(objeto.getIdServicio());</span>
+
+<span class="fc" id="L37">        validarTurno(</span>
+<span class="fc" id="L38">                objeto.getFecha(),</span>
+<span class="fc" id="L39">                objeto.getHora(),</span>
+                servicio,
+                barbero
+        );
+
+<span class="fc" id="L44">        Turno turno = turnoMapper.toEntity(objeto, barbero, servicio);</span>
+
+<span class="fc" id="L46">        turnoRepository.save(turno);</span>
+
+<span class="fc" id="L48">        String html = emailService.cargarConfirmacion(</span>
+<span class="fc" id="L49">                turno.getNombreCliente(),</span>
+<span class="fc" id="L50">                turno.getFecha().toString(),</span>
+<span class="fc" id="L51">                turno.getHoraDesde().toString().substring(0,5),</span>
+<span class="fc" id="L52">                servicio.getNombreServicio(),</span>
+<span class="fc" id="L53">                barbero.getNombre() + &quot; &quot; + barbero.getApellido(),</span>
+<span class="fc" id="L54">                turno.getIdTurno()</span>
+        );
+
+<span class="fc" id="L57">        emailService.enviarHtml(</span>
+<span class="fc" id="L58">                turno.getEmailCliente(),</span>
+                &quot;Confirmación de tu turno – Style Barber&quot;,
+                html
+        );
+
+<span class="fc" id="L63">        return turnoMapper.toResponse(turno);</span>
+    }
+
+    private void validarTurno(LocalDate fecha, LocalTime hora,
+                              Servicio servicio, Barbero barbero) {
+
+<span class="fc" id="L69">        turnoValidation.validarHorarioTurno(fecha, hora);</span>
+
+<span class="fc" id="L71">        turnoValidation.validarFechaFutura(fecha, hora);</span>
+
+<span class="fc" id="L73">        turnoValidation.validarHorarioYBarberoDisponible(</span>
+                fecha,
+                hora,
+<span class="fc" id="L76">                servicio.getDuracionMinutos(),</span>
+<span class="fc" id="L77">                barbero.getIdBarbero()</span>
+        );
+<span class="fc" id="L79">    }</span>
+
+    private Barbero getBarbero(Long idBarbero) {
+<span class="fc" id="L82">        return barberoService.getBarberoEntity(idBarbero);</span>
+    }
+
+    private Servicio getServicio(Long idServicio) {
+<span class="fc" id="L86">        return servicioService.getServicioEntity(idServicio);</span>
+    }
+
+    @Override
+    public TurnoResponse buscarPorId(Long id) {
+<span class="fc" id="L91">        Turno turno = getTurnoEntity(id);</span>
+
+<span class="fc" id="L93">        return turnoMapper.toResponse(turno);</span>
+    }
+
+    private Turno getTurnoEntity(Long id) {
+<span class="fc" id="L97">        return turnoRepository.findById(id)</span>
+<span class="fc" id="L98">                .orElseThrow(()-&gt;new IllegalArgumentException(&quot;No existe turno con ese id&quot;));</span>
+    }
+
+    @Override
+    public List&lt;TurnoResponse&gt; listar() {
+<span class="fc" id="L103">        return turnoRepository.findAll()</span>
+<span class="fc" id="L104">                .stream()</span>
+<span class="fc" id="L105">                .map(turnoMapper::toResponse)</span>
+<span class="fc" id="L106">                .toList();</span>
+    }
+
+    @Override
+    public TurnoResponse actualizar(Long id, TurnoRequest objeto) {
+
+<span class="fc" id="L112">        Turno turno = getTurnoEntity(id);</span>
+
+<span class="fc" id="L114">        turnoValidation.validarEstadoTurno(turno.getEstadoTurno());</span>
+
+<span class="fc" id="L116">        Barbero barbero = getBarbero(objeto.getIdBarbero());</span>
+<span class="fc" id="L117">        Servicio servicio = getServicio(objeto.getIdServicio());</span>
+
+<span class="fc" id="L119">        validarTurno(</span>
+<span class="fc" id="L120">                objeto.getFecha(),</span>
+<span class="fc" id="L121">                objeto.getHora(),</span>
+                servicio,
+                barbero
+        );
+
+<span class="fc" id="L126">        aplicarCambiosAlTurno(turno, objeto, barbero, servicio);</span>
+
+<span class="fc" id="L128">        Turno guardado = turnoRepository.save(turno);</span>
+<span class="fc" id="L129">        return turnoMapper.toResponse(guardado);</span>
+    }
+
+    private void aplicarCambiosAlTurno(Turno turno,
+                                       TurnoRequest req,
+                                       Barbero barbero,
+                                       Servicio servicio) {
+
+<span class="fc" id="L137">        turno.setNombreCliente(req.getNombreCliente());</span>
+<span class="fc" id="L138">        turno.setEmailCliente(req.getEmailCliente());</span>
+<span class="fc" id="L139">        turno.setTelefonoCliente(req.getTelefonoCliente());</span>
+<span class="fc" id="L140">        turno.setFecha(req.getFecha());</span>
+<span class="fc" id="L141">        turno.setHoraDesde(req.getHora());</span>
+<span class="fc" id="L142">        turno.setHoraHasta(req.getHora().plusMinutes(servicio.getDuracionMinutos()));</span>
+<span class="fc" id="L143">        turno.setBarbero(barbero);</span>
+<span class="fc" id="L144">        turno.setServicio(servicio);</span>
+<span class="fc" id="L145">    }</span>
+
+    @Override
+    public TurnoResponse cancelar(Long id) {
+<span class="fc" id="L149">        Turno turno= getTurnoEntity(id);</span>
+
+<span class="fc" id="L151">        turno.setEstadoTurno(EstadoTurno.CANCELADO);</span>
+
+<span class="fc" id="L153">        Turno guardado = turnoRepository.save(turno);</span>
+
+<span class="fc" id="L155">        return turnoMapper.toResponse(guardado);</span>
+
+    }
+
+    @Override
+    public List&lt;TurnoResponse&gt; listarPorBarberoYFecha(Long idBarbero, LocalDate fecha) {
+
+<span class="fc" id="L162">        List&lt;Turno&gt; turnos = turnoRepository</span>
+<span class="fc" id="L163">                .findByBarberoIdBarberoAndFecha(idBarbero, fecha);</span>
+
+<span class="fc" id="L165">        return turnos.stream()</span>
+<span class="fc" id="L166">                .map(turnoMapper::toResponse)</span>
+<span class="fc" id="L167">                .toList();</span>
+    }
+
+    @Override
+    public List&lt;TurnoResponse&gt; listarPorFecha(LocalDate fecha) {
+<span class="fc" id="L172">        return turnoRepository.findByFecha(fecha)</span>
+<span class="fc" id="L173">                .stream()</span>
+<span class="fc" id="L174">                .map(turnoMapper::toResponse)</span>
+<span class="fc" id="L175">                .toList();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

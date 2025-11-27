@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es" style="margin:0; padding:0;">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Confirmación de Turno</title>
+</head>
+
+<body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f4f4f4;">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="padding:30px 0; background-color:#f4f4f4;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0"
+                   style="background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+                <tr>
+                    <td style="background:#000; color:white; padding:25px; font-size:24px; font-weight:bold; text-align:center;">
+                        💈 Style Barber – Turno Confirmado
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:30px; color:#333; font-size:16px;">
+
+                        <p style="margin-top:0;">
+                            Hola <strong>${nombre}</strong>,
+                        </p>
+
+                        <p>
+                            ¡Tu turno fue reservado correctamente!
+                            Estos son los detalles:
+                        </p>
+
+                        <table cellpadding="0" cellspacing="0" width="100%"
+                               style="background:#fafafa; padding:15px; border-radius:8px; border:1px solid #e5e5e5; margin:20px 0;">
+                            <tr>
+                                <td style="font-size:16px;">
+                                    <strong>📅 Fecha:</strong> ${fecha}<br>
+                                    <strong>⏰ Hora:</strong> ${hora} hs<br>
+                                    <strong>💈 Servicio:</strong> ${servicio}<br>
+                                    <strong>👤 Barbero:</strong> ${barbero}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p>
+                            Si necesitás cancelar o modificar el turno, podés hacerlo desde el siguiente enlace:
+                        </p>
+
+                        <div style="text-align:center; margin:25px 0;">
+                            <a href="__LINK_CANCELAR__"
+                               style="background:#d9534f; color:white; text-decoration:none; padding:12px 25px;
+                                      border-radius:5px; font-size:16px; display:inline-block;">
+                                Cancelar turno
+                            </a>
+                        </div>
+
+                        <p>
+                            ¡Gracias por elegir Style Barber!
+                            Te esperamos 🔥
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="background:#fafafa; color:#777; font-size:12px; text-align:center; padding:15px;">
+                        © 2025 Style Barber · Todos los derechos reservados.
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

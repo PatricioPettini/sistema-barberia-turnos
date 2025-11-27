@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TurnoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.controller</a> &gt; <span class="el_source">TurnoController.java</span></div><h1>TurnoController.java</h1><pre class="source lang-java linenums">package com.pato.controller;
+
+import com.pato.dto.request.TurnoRequest;
+import com.pato.dto.response.TurnoResponse;
+import com.pato.service.interfaces.ITurnoService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/turnos&quot;)
+@RequiredArgsConstructor
+public class TurnoController {
+
+    private final ITurnoService turnoService;
+
+    @PreAuthorize(&quot;permitAll()&quot;)
+    @PostMapping
+    public ResponseEntity&lt;TurnoResponse&gt; crear(@Valid @RequestBody TurnoRequest request) {
+<span class="fc" id="L26">        return ResponseEntity.ok(turnoService.crear(request));</span>
+    }
+
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @PutMapping(&quot;/{idTurno}&quot;)
+    public ResponseEntity&lt;TurnoResponse&gt; editar(@PathVariable Long idTurno, @Valid @RequestBody TurnoRequest request) {
+<span class="fc" id="L32">        return ResponseEntity.ok(turnoService.actualizar(idTurno, request));</span>
+    }
+
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @GetMapping
+    public ResponseEntity&lt;List&lt;TurnoResponse&gt;&gt; listar() {
+<span class="fc" id="L38">        return ResponseEntity.ok(turnoService.listar());</span>
+    }
+
+    @GetMapping(&quot;/barbero/{idBarbero}/{fecha}&quot;)
+    public ResponseEntity&lt;List&lt;TurnoResponse&gt;&gt; listarPorBarberoYFecha(
+            @PathVariable Long idBarbero,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+<span class="fc" id="L45">        return ResponseEntity.ok(turnoService.listarPorBarberoYFecha(idBarbero, fecha));</span>
+    }
+
+    @GetMapping(&quot;/barbero/{fecha}&quot;)
+    public ResponseEntity&lt;List&lt;TurnoResponse&gt;&gt; listarPorFecha(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+<span class="fc" id="L51">        return ResponseEntity.ok(turnoService.listarPorFecha(fecha));</span>
+    }
+
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;TurnoResponse&gt; buscarPorId(@PathVariable Long id) {
+<span class="fc" id="L57">        return ResponseEntity.ok(turnoService.buscarPorId(id));</span>
+    }
+
+    @PutMapping(&quot;/{id}/cancelar&quot;)
+    public ResponseEntity&lt;TurnoResponse&gt; cancelar(@PathVariable Long id) {
+<span class="fc" id="L62">        return ResponseEntity.ok(turnoService.cancelar(id));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

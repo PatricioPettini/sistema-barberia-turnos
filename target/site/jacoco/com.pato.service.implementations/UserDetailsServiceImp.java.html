@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserDetailsServiceImp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sistema-barberia</a> &gt; <a href="index.source.html" class="el_package">com.pato.service.implementations</a> &gt; <span class="el_source">UserDetailsServiceImp.java</span></div><h1>UserDetailsServiceImp.java</h1><pre class="source lang-java linenums">package com.pato.service.implementations;
+import com.pato.dto.request.AuthLoginRequestDTO;
+import com.pato.dto.response.AuthResponseDTO;
+import com.pato.model.UserSec;
+import com.pato.repository.IUserRepository;
+import com.pato.utils.JwtUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class UserDetailsServiceImp implements UserDetailsService {
+
+    private final IUserRepository userRepo;
+
+    private final JwtUtils jwtUtils;
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
+
+<span class="fc" id="L36">        UserSec userSec = userRepo.findByUsername(username)</span>
+<span class="fc" id="L37">                .orElseThrow(()-&gt; new UsernameNotFoundException(&quot;El usuario &quot; + username + &quot;no fue encontrado&quot;));</span>
+
+<span class="fc" id="L39">        List&lt;SimpleGrantedAuthority&gt; authorityList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L41">        userSec.getRolesList()</span>
+<span class="fc" id="L42">                .forEach(role -&gt; authorityList.add(new SimpleGrantedAuthority(&quot;ROLE_&quot;.concat(role.getName()))));</span>
+
+<span class="fc" id="L44">        userSec.getRolesList().stream()</span>
+<span class="fc" id="L45">                .flatMap(role -&gt; role.getPermissionsList().stream())</span>
+<span class="fc" id="L46">                .forEach(permission -&gt; authorityList.add(new SimpleGrantedAuthority(permission.getPermissionName())));</span>
+
+<span class="fc" id="L48">        return new User(userSec.getUsername(),</span>
+<span class="fc" id="L49">                userSec.getPassword(),</span>
+<span class="fc" id="L50">                userSec.isEnabled(),</span>
+<span class="fc" id="L51">                userSec.isAccountNotExpired(),</span>
+<span class="fc" id="L52">                userSec.isCredentialNotExpired(),</span>
+<span class="fc" id="L53">                userSec.isAccountNotLocked(),</span>
+                authorityList);
+    }
+
+    public AuthResponseDTO loginUser (AuthLoginRequestDTO authLoginRequest){
+
+<span class="fc" id="L59">        String username = authLoginRequest.username();</span>
+<span class="fc" id="L60">        String password = authLoginRequest.password();</span>
+
+<span class="fc" id="L62">        Authentication authentication = this.authenticate (username, password);</span>
+<span class="fc" id="L63">        SecurityContextHolder.getContext().setAuthentication(authentication);</span>
+<span class="fc" id="L64">        String accessToken =jwtUtils.createToken(authentication);</span>
+<span class="fc" id="L65">        return new AuthResponseDTO(username, &quot;login ok&quot;, accessToken, true);</span>
+
+    }
+
+    public Authentication authenticate (String username, String password) {
+<span class="fc" id="L70">        UserDetails userDetails = this.loadUserByUsername(username);</span>
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (userDetails==null) {</span>
+<span class="nc" id="L73">            throw new BadCredentialsException(&quot;Ivalid username or password&quot;);</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (!passwordEncoder.matches(password, userDetails.getPassword())) {</span>
+<span class="fc" id="L76">            throw new BadCredentialsException(&quot;Invalid password&quot;);</span>
+        }
+<span class="fc" id="L78">        return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
